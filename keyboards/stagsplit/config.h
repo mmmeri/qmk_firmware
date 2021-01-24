@@ -14,14 +14,18 @@
 
 // Splitiness
 #define MASTER_LEFT
+#define SOFT_SERIAL_PIN D2
+#define SPLIT_USB_DETECT
 
 /* key matrix size */
-#define MATRIX_ROWS 6
-#define MATRIX_COLS 7
+#define MATRIX_ROWS 12 // 5+6
+#define MATRIX_COLS 10
 
 /* key matrix pins */
 #define MATRIX_ROW_PINS { C6, D7, E6, B4, B5, B7 }
-#define MATRIX_COL_PINS { F6, F7, B1, B3, B2, B6, D5 }
+#define MATRIX_COL_PINS { F6, F7, B1, B3, B2, B6, D5, NO_PIN, NO_PIN, NO_PIN }
+#define MATRIX_ROW_PINS_RIGHT { C6, B5, B4, E6, D7, NO_PIN }
+#define MATRIX_COL_PINS_RIGHT { F6, F7, B1, B3, B2, B6, F0, F1, C7, D5 }
 #define UNUSED_PINS
 
 /* COL2ROW or ROW2COL */
