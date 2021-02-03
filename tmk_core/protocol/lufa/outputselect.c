@@ -22,6 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    include "adafruit_ble.h"
 #endif
 
+#ifdef NRF24_ENABLE
+#    include "nrf24.h"
+#endif
+
 uint8_t desired_output = OUTPUT_DEFAULT;
 
 /** \brief Set Output
@@ -62,6 +66,12 @@ uint8_t auto_detect_output(void) {
 
 #ifdef BLUETOOTH_ENABLE
     return OUTPUT_BLUETOOTH;  // should check if BT is connected here
+#endif
+
+#ifdef NRF24_ENABLE
+    if (nrf24_is_paired()) {
+        return OUTPUT_NRF24;
+    }
 #endif
 
     return OUTPUT_NONE;

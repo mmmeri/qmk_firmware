@@ -73,6 +73,11 @@ extern keymap_config_t keymap_config;
 #    endif
 #endif
 
+#ifdef NRF24_ENABLE
+#    include "outputselect.h"
+#    include "nrf24.h"
+#endif
+
 #ifdef VIRTSER_ENABLE
 #    include "virtser.h"
 #endif
@@ -670,7 +675,6 @@ static void send_keyboard(report_keyboard_t *report) {
 
 #ifdef BLUETOOTH_ENABLE
     uint8_t where = where_to_send();
-
     if (where == OUTPUT_BLUETOOTH || where == OUTPUT_USB_AND_BT) {
 #    ifdef MODULE_ADAFRUIT_BLE
         adafruit_ble_send_keys(report->mods, report->keys, sizeof(report->keys));
@@ -690,6 +694,18 @@ static void send_keyboard(report_keyboard_t *report) {
         return;
     }
 #endif
+
+ #ifdef NRF24_ENABLE
+    xprintf("[NRF24] - check where to send\n");
+    uint8_t where = where_to_send();
+    xprintf("[NRF24] - check if to send\n");
+    if (where == OUTPUT_NRF24 || where == OUTPUT_USB_AND_NRF24) {
+        xprintf("[NRF24] - send_keys\n");
+        nrf24_send_keys(report->mods, report->keys, sizeof(report->keys));
+        return;
+    }
+#endif
+
 
     /* Select the Keyboard Report Endpoint */
     uint8_t ep   = KEYBOARD_IN_EPNUM;
@@ -1090,6 +1106,10 @@ int main(void) {
 
 #ifdef MODULE_ADAFRUIT_BLE
         adafruit_ble_task();
+#endif
+
+#ifdef NRF24_ENABLE
+        nrf24_task();
 #endif
 
 #ifdef VIRTSER_ENABLE

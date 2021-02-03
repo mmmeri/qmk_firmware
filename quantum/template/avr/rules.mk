@@ -19,4 +19,5 @@ NKRO_ENABLE = no            # USB Nkey Rollover
 BACKLIGHT_ENABLE = no       # Enable keyboard backlight functionality
 RGBLIGHT_ENABLE = no        # Enable keyboard RGB underglow
 BLUETOOTH_ENABLE = no       # Enable Bluetooth
+NRF24_ENABLE = no			# Use of SPI NRF24L01+ module
 AUDIO_ENABLE = no           # Audio output

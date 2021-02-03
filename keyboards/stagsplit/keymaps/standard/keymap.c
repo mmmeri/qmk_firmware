@@ -1,4 +1,6 @@
 #include "kb.h"
+#include "outputselect.h"
+#include "nrf24.h"
 #include "logos.h"
 
 enum stagsplit_layers {
@@ -14,7 +16,8 @@ enum custom_keycodes {
     KC_RAISE,
     KC_GAME,
     KC_LPBC, // Combo left Paren Bracket Curly-Brace
-    KC_RPBC  // Combo left Paren Bracket Curly-Brace
+    KC_RPBC, // Combo left Paren Bracket Curly-Brace
+    NRF_PAIR,
 };
 
 #define KC_LNGL KC_LEFT_ANGLE_BRACKET
@@ -34,7 +37,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_RAISE] = KEYMAP(
         KC_GRV,     KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                    KC_F6, KC_F7, KC_F8, KC_F9, KC_F10, KC_F11, KC_F12,          KC_BSPC,   KC_DEL,
         KC_TAB,     KC_Q,    KC_UP,    KC_LPRN, KC_RPRN,    KC_T,    KC_Y,            KC_T,  KC_Y,  KC_U,  KC_UP,  KC_O,  KC_P,  KC_LBRC, KC_RBRC,      KC_BSLS,  KC_PAUS,
-        KC_TRNS,    KC_LEFT, KC_DOWN,  KC_LBRC, KC_RBRC,    KC_G,    KC_H,          KC_MUTE, KC_G,  KC_HOME,KC_LEFT,KC_DOWN,KC_RGHT,  KC_SCLN, KC_QUOT, KC_ENT,  KC_HOME,
+        KC_TRNS,    KC_LEFT, KC_DOWN,  KC_LBRC, KC_RBRC,    KC_G,    KC_H,         NRF_PAIR, KC_G,  KC_HOME,KC_LEFT,KC_DOWN,KC_RGHT,  KC_SCLN, KC_QUOT, KC_ENT,  KC_HOME,
         KC_LSFT,MEH_T(KC_Z),MEH_T(KC_X),KC_LCBR,KC_RCBR,  KC_B,KC_7,                 KC_V,  KC_B,  KC_END,  KC_M,  KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT,    KC_UP,   KC_END,
         KC_LCTL,    KC_LGUI, KC_LALT, KC_BSPC,  KC_ENT,  KC_BSLS, KC_PIPE,    KC_LPRN, KC_RPRN, KC_BSPC, KC_ENTER, KC_APP, KC_MENU, KC_RCTRL, KC_LEFT,    KC_DOWN, KC_RIGHT,
                                                                      KC_TRNS
@@ -71,6 +74,10 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 }
 
 void matrix_init_user(void) {
+    #ifdef NRF24_ENABLE
+    wait_ms(500); // give time for usb to initialize
+    set_output(OUTPUT_NRF24);
+    #endif
 }
 
 void matrix_scan_user(void) {
@@ -88,27 +95,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             return false;
-
-    //     case KC_LPBC:
-    //         if (record->event.pressed) {
-    //             if (keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT)) {
-    //                 register_code16(KC_LEFT_ANGLE_BRACKET);
-    //             }
-    //             else {
-    //                 register_code16(KC_LEFT_PAREN);
-    //             }
-    //         }
-    //         return false;
-    //     case KC_RPBC:
-    //         if (record->event.pressed) {
-    //             if (keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT)) {
-    //                 register_code16(KC_RIGHT_ANGLE_BRACKET);
-    //             }
-    //             else {
-    //                 register_code16(KC_RIGHT_PAREN);
-    //             }
-    //         }
-    //         return false;
+    #ifdef NRF24_ENABLE
+        case NRF_PAIR:
+            if (record->event.pressed && !nrf24_is_paired()) {
+                nrf24_pair();
+            }
+            break;
+        #endif
         }
     return true;
 }
@@ -154,6 +147,14 @@ static void render_status(void) {
 
     // oled_write_P(PSTR("\n\n"), false);
     // oled_write_P(PSTR("                                                            STGSPLT\n"), false);
+    #ifdef NRF24_ENABLE
+    if (nrf24_is_paired()){
+        oled_write_P(PSTR("Paired"), false);
+    }
+    else {
+        oled_write_P(PSTR("Not paired..."), false);
+    }
+    #else
 
     // // Host Keyboard Layer Status
     // // oled_write_P(PSTR("Layer: "), false);
@@ -174,6 +175,7 @@ static void render_status(void) {
         default:
             oled_write_P(PSTR("Undefined\n"), false);
     }
+    #endif
 
     // Host Keyboard LED Status
     // uint8_t led_usb_state = host_keyboard_leds();
