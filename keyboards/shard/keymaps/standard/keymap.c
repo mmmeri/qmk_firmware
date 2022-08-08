@@ -1,12 +1,19 @@
 #include "kb.h"
+#include "split_util.h"
 
 enum stagsplit_layers {
     _QWERTY,
     _GAME,
+    _GP,
     _UE4,
     _CHILL,
+
+    _MAX_PERSISTENT_LAYERS,
+
     _RAISE,
     _LWR,
+
+    _MAX_LAYERS
 };
 
 enum custom_keycodes {
@@ -26,7 +33,7 @@ enum custom_keycodes {
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-    [_QWERTY] = KEYMAP(
+    [_QWERTY] = LAYOUT(
         KC_ESC,     KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,                                         KC_7,  KC_8,  KC_9,     KC_0,    _______, KC_DEL,
         KC_TAB,     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,                                 KC_Y,   KC_U,  KC_I,  KC_O,     KC_P,    _______, _______,
         MO(_RAISE), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                                                  KC_H,  KC_J,  KC_K,     KC_L,    KC_SCLN, KC_QUOT,
@@ -34,15 +41,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,    KC_LGUI, KC_LALT, KC_DEL,  KC_SPC,  KC_LBRC, KC_RBRC,           KC_MINS, KC_EQL,   KC_BSPC,  KC_ENTER,   MO(_LWR), KC_LEFT, KC_DOWN, KC_RIGHT
     ),
 
-    [_GAME] = KEYMAP(
+    [_GAME] = LAYOUT(
         KC_ESC,     KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,                               ____,  ____,  ____, ____, ____, ____,
         KC_TAB,     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,                       ____,   ____,  ____,  ____, ____, ____, ____,
         KC_KP_2,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                                        ____,  ____,  ____, ____, ____, ____,
-        KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    TO(_UE4),           ____,  ____,  ____,  ____,  ____, ____, ____, ____,
+        KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    TO(_GP),           ____,  ____,  ____,  ____,  ____, ____, ____, ____,
         KC_LCTL,    KC_LGUI, KC_LALT, KC_DEL,  KC_SPC,  KC_KP_0, KC_KP_1,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
     ),
 
-    // [] = KEYMAP(
+    // [] = LAYOUT(
     //     ______,     ____,    ____,    ____,    ____,    ____,    ____,                               ____,  ____,  ____, ____, ____, ____,
     //     ______,     ____,    ____,    ____,    ____,    ____,    ____,                       ____,   ____,  ____,  ____, ____, ____, ____,
     //     ______,    ____,    ____,    ____,    ____,    ____,                                        ____,  ____,  ____, ____, ____, ____,
@@ -50,7 +57,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //     ______,    ______, ______, ______,  ______,    ______, ______,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
     // ),
 
-    [_UE4] = KEYMAP(
+    [_GP] = LAYOUT(
+        ______,     ____,    ____,    ____,    ____,    ____,    ____,                               ____,  ____,  ____, ____, ____, ____,
+        ______,     ____,    ____,    ____,    ____,    ____,    ____,                       ____,   ____,  ____,  ____, ____, ____, ____,
+        ______,     ____,    ____,    ____,    ____,    ____,                                        ____,  ____,  ____, ____, ____, ____,
+        ______,    ____,    ____,    ____,    ____,    ____,    TO(_UE4),           ____,  ____,  ____,  ____,  ____, ____, ____, ____,
+        ______,    ______, ______, ______,  ______,    ______, KC_INS,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
+    ),
+
+
+    [_UE4] = LAYOUT(
         ______,     ____,    ____,    ____,    ____,    ____,    ____,                               ____,  ____,  ____, ____, ____, ____,
         ______,     ____,    ____,    ____,    ____,    ____,    ____,                       ____,   ____,  ____,  ____, ____, ____, ____,
         ______,    ____,    ____,    ____,    ____,    ____,                                        ____,  ____,  ____, ____, ____, ____,
@@ -58,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         ______,    ______, ______, ______,  ______,    ______, ______,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
     ),
 
-    [_CHILL] = KEYMAP(
+    [_CHILL] = LAYOUT(
         KC_ESC,     KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,                                         ____,  ____,  ____,     ____,    _______, KC_DEL,
         KC_TAB,     KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,                                 ____,   ____,  ____,  ____,     ____,    _______, _______,
         MO(_RAISE), KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                                                  ____,  ____,  ____,     ____,    KC_SCLN, KC_QUOT,
@@ -66,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_LCTL,    KC_LGUI, KC_LALT, KC_DEL,  KC_SPC,  KC_LBRC, KC_RBRC,           KC_MINS, KC_EQL,   KC_BSPC,  KC_ENTER,   _____, KC_LEFT, KC_DOWN, KC_RIGHT
     ),
 
-    [_RAISE] = KEYMAP(
+    [_RAISE] = LAYOUT(
         KC_GRV,     KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                                KC_F7, KC_F8, KC_F9,   KC_F10,    KC_F11,  KC_F12,
         KC_TAB,     ____,    KC_UP,   ____,    ____,    ____,    ____,                        ____, KC_PGUP,  KC_UP, KC_PGDN, KC_PAUS,   KC_TRNS, KC_TRNS,
         KC_TRNS,    KC_LEFT, KC_DOWN, KC_RIGHT,____,    ____,                                       KC_HOME, KC_LEFT, KC_DOWN, KC_RIGHT, KC_SCLN, KC_QUOT,
@@ -74,7 +90,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,    _______, _______, KC_BSPC, KC_ENT,  KC_PIPE, KC_BSLS,       KC_LPRN, KC_RPRN,  KC_BSPC, KC_ENTER, KC_APP, KC_MENU, KC_DOWN, KC_RIGHT
     ),
 	
-    [_LWR] = KEYMAP(
+    [_LWR] = LAYOUT(
         KC_GRV,     KC_KP_1,   KC_KP_2,     KC_KP_3,     KC_KP_4,        KC_KP_5, KC_KP_6,                   KC_KP_7, KC_KP_8, KC_KP_9,KC_KP_0, ____, ____,
         KC_TAB,     KC_KP_7,   KC_KP_8,     KC_KP_9,     KC_KP_ASTERISK, ____,    ____,                       ____,   ____,  ____,  ____, ____, ____, ____,
         KC_TRNS,    KC_KP_4,   KC_KP_5,     KC_KP_6,     KC_KP_MINUS,    ____,                                        ____,  ____,  ____, ____, ____, ____,
@@ -103,30 +119,54 @@ void matrix_init_user(void) {
 void matrix_scan_user(void) {}
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    // if (is_keyboard_master()) {
-        return OLED_ROTATION_180;
-    // }
+    if (is_keyboard_left()) {
+        return OLED_ROTATION_0;
+    }
     return rotation;
 }
 
-static void render_status(void) {
-    switch (get_highest_layer(layer_state)) {
+const char *get_layer_text(uint8_t layer)
+{
+    switch (layer) {
         case _QWERTY:
-            // if (0) coding_logo();
-            oled_write_P(PSTR("CDNG\n"), false);
+            return (PSTR("CODING\n"));
             break;
-        // case _ALT_RAISE:
-        //     oled_write_P(PSTR("ALT RAISE\n"), false);
-        //     break;
+        case _LWR:
+            return (PSTR("LOWER\n"));
+            break;
         case _RAISE:
-            oled_write_P(PSTR("RAISE\n"), false);
+            return (PSTR("RAISE\n"));
             break;
         case _GAME:
-            oled_write_P(PSTR("GAMING\n"), false);
+            return (PSTR("GAMING\n"));
+            break;
+        case _UE4:
+            return (PSTR("UE4\n"));
+            break;
+        case _GP:
+            return (PSTR("GUITAR PRO\n"));
             break;
         default:
-            oled_write_P(PSTR("Undefined\n"), false);
+            return (PSTR("UNDEFINED\n"));
     }
+
+    return "";
+}
+
+static void render_status(void) {
+    int prev_layer = get_highest_layer(layer_state) - 1;
+    if (prev_layer < 0) {
+        prev_layer = _MAX_PERSISTENT_LAYERS - 1;
+    }
+    int next_layer = (get_highest_layer(layer_state) + 1) % _MAX_PERSISTENT_LAYERS;
+
+    oled_write_P("\n", false);
+    oled_write_P(get_layer_text(prev_layer), false);
+    oled_write_P("^\n", false);
+    oled_write_P(">>> ", false);
+    oled_write_P(get_layer_text(get_highest_layer(layer_state)), false);
+    oled_write_P("V\n", false);
+    oled_write_P(get_layer_text(next_layer), false);
 }
 
 void oled_task_user(void) {
@@ -161,13 +201,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef ENCODER_ENABLE
 
-void encoder_update_user(uint8_t index, bool clockwise) {
+#define TUPLE_CPY_2(A, B) memcpy(keys, (const uint16_t[]){(A), (B)}, 2 * sizeof(uint16_t));
+
+bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 1) {
-        if (clockwise) {
-            tap_code(KC_VOLU);
-        } else {
-            tap_code(KC_VOLD);
+        uint16_t keys[2];
+        int clockwise_index = clockwise ? 1 : 0;
+
+        switch (get_highest_layer(layer_state))
+        {
+            case _GP:
+                if (keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+                    TUPLE_CPY_2(
+                        LALT(LSFT(KC_DOWN)),
+                        LALT(LSFT(KC_UP))
+                    );
+                }
+                else {
+                    TUPLE_CPY_2(
+                        KC_MINUS,
+                        KC_PLUS
+                    );
+                }
+                break;
+            case _RAISE:
+                TUPLE_CPY_2(KC_MEDIA_PREV_TRACK, KC_MEDIA_NEXT_TRACK);
+                break;
+            default:
+                TUPLE_CPY_2(KC_VOLD, KC_VOLU);
+                break;
         }
+
+        tap_code16(keys[clockwise_index]);
     } else if (index == 0) {
         if (clockwise) {
             tap_code16(LCTL(KC_Y));
@@ -175,6 +240,8 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             tap_code16(LCTL(KC_Z));
         }
     }
+
+    return true;
 }
 
 #endif

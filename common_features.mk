@@ -617,13 +617,6 @@ ifeq ($(strip $(ST7565_ENABLE)), yes)
     SRC += st7565.c
 endif
 
-# ifeq ($(strip $(OLED_DRIVER_ENABLE)), yes)
-# OPT_DEFS += -DOLED_DRIVER_ENABLE
-COMMON_VPATH += $(DRIVER_PATH)/nrf24
-QUANTUM_LIB_SRC += spi_master.c
-SRC += oled_driver.c
-# endif
-
 include $(DRIVER_PATH)/qwiic/qwiic.mk
 
 ifeq ($(strip $(UCIS_ENABLE)), yes)

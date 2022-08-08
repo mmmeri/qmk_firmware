@@ -94,17 +94,6 @@ ifeq ($(strip $(BLUETOOTH)), RN42)
 	TMK_COMMON_DEFS += -DNO_USB_STARTUP_CHECK
 endif
 
-<<<<<<< HEAD
-ifeq ($(strip $(NRF24_ENABLE)), yes)
-	TMK_COMMON_DEFS += -DNRF24_ENABLE
-	TMK_COMMON_DEFS += -DNO_USB_STARTUP_CHECK
-endif
-
-ifeq ($(strip $(ONEHAND_ENABLE)), yes)
-  SWAP_HANDS_ENABLE = yes # backwards compatibility
-endif
-=======
->>>>>>> e864786c0b64423aa2fa83f2cc8a2049af9957fd
 ifeq ($(strip $(SWAP_HANDS_ENABLE)), yes)
     TMK_COMMON_DEFS += -DSWAP_HANDS_ENABLE
 endif
