@@ -1,4 +1,4 @@
-#include "kb.h"
+#include QMK_KEYBOARD_H
 #include "split_util.h"
 
 enum stagsplit_layers {
@@ -16,18 +16,12 @@ enum stagsplit_layers {
     _MAX_LAYERS
 };
 
-enum custom_keycodes {
-    KC_QWERTY = SAFE_RANGE,
-    NRF_PAIR,
-};
-
 #define KC_LNGL KC_LEFT_ANGLE_BRACKET
 #define KC_RNGL KC_RIGHT_ANGLE_BRACKET
 #define KC_MPP KC_MEDIA_PLAY_PAUSE
 #define ____ KC_TRNS
 #define _____ KC_TRNS
 #define ______ KC_TRNS
-#define _______ KC_TRNS
 
 
 // clang-format off
@@ -85,9 +79,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_RAISE] = LAYOUT(
         KC_GRV,     KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                                KC_F7, KC_F8, KC_F9,   KC_F10,    KC_F11,  KC_F12,
         KC_TAB,     ____,    KC_UP,   ____,    ____,    ____,    ____,                        ____, KC_PGUP,  KC_UP, KC_PGDN, KC_PAUS,   KC_TRNS, KC_TRNS,
-        KC_TRNS,    KC_LEFT, KC_DOWN, KC_RIGHT,____,    ____,                                       KC_HOME, KC_LEFT, KC_DOWN, KC_iRIGHT, KC_SCLN, KC_QUOT,
+        KC_TRNS,    KC_LEFT, KC_DOWN, KC_RIGHT,____,    ____,                                       KC_HOME, KC_LEFT, KC_DOWN, KC_RIGHT, KC_SCLN, KC_QUOT,
         _______,    ____,    ____,   MEH(KC_C),____,    ____,    ____,                     KC_MPP,  ____,   KC_END,  ____,  ____,  ____,  ____,   KC_PSCR,
-        _______,    _______, _______, KC_BSPC, KC_ENT,  KC_PIPE, KC_BSLS,       KC_LPRN, KC_RPRN,  KC_BSPC, KC_ENTER, KC_APP, KC_MENU, KC_DOWN, KC_RIGHT
+        _______,    _______, _______, KC_BSPC, KC_ENT,  KC_BSLS, KC_PIPE,       KC_LPRN, KC_RPRN,  KC_BSPC, KC_ENTER, KC_APP, KC_MENU, KC_DOWN, KC_RIGHT
     ),
 	
     [_LWR] = LAYOUT(
@@ -95,28 +89,30 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,     KC_KP_7,   KC_KP_8,     KC_KP_9,     KC_KP_ASTERISK, ____,    ____,                       ____,   ____,  ____,  ____, ____, ____, ____,
         KC_TRNS,    KC_KP_4,   KC_KP_5,     KC_KP_6,     KC_KP_MINUS,    ____,                                        ____,  ____,  ____, ____, ____, ____,
         KC_LSFT,    KC_KP_1,   KC_KP_2,     KC_KP_3,     KC_KP_PLUS,     ____,    ____,                 ____,  ____,  ____,  ____,  ____, ____, ____, ____,
-        KC_LCTL,    KC_KP_0,   KC_KP_SLASH, KC_KP_COMMA, KC_KP_ENTER,    KC_PIPE, KC_BSLS,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
+        KC_LCTL,    KC_KP_0,   KC_KP_SLASH, KC_KP_COMMA, KC_KP_ENTER,    ____,    ____,       ____,  ____,   ____,    ____,   ____,    ____, ____, ____
     ),
 
 };
 // clang-format on
 
-const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
-    keyevent_t event = record->event;
-    (void)event;
-
-    switch (id) {}
-    return MACRO_NONE;
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case KC_ESC:
+            if (record->event.pressed) {
+                if (keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT)) {
+                    tap_code16(KC_TILDE);
+                } else {
+                    tap_code16(KC_ESC);
+                }
+            }
+            return false;
+    }
+    return true;
 }
 
-void matrix_init_user(void) {
-#ifdef NRF24_ENABLE
-    wait_ms(500);  // give time for usb to initialize
-    set_output(OUTPUT_NRF24);
-#endif
-}
-
-void matrix_scan_user(void) {}
+///
+/// OLED
+///
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (is_keyboard_left()) {
@@ -169,35 +165,15 @@ static void render_status(void) {
     oled_write_P(get_layer_text(next_layer), false);
 }
 
-void oled_task_user(void) {
-    // if (is_keyboard_left()) {
-        render_status();
-    // }
+bool oled_task_user(void) {
+	render_status();
+	return true;
 }
 
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_ESC:
-            if (record->event.pressed) {
-                if (keyboard_report->mods & MOD_BIT(KC_LSFT) || keyboard_report->mods & MOD_BIT(KC_RSFT)) {
-                    tap_code16(KC_TILDE);
-                } else {
-                    tap_code16(KC_ESC);
-                }
-            }
-            return false;
-#ifdef NRF24_ENABLE
-        case NRF_PAIR:
-            if (record->event.pressed && !nrf24_is_paired()) {
-                nrf24_pair();
-            }
-            break;
-#endif
-    }
-    return true;
-}
-
+///
+/// Encoder
+///
 
 #ifdef ENCODER_ENABLE
 

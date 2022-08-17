@@ -1,5 +1,4 @@
-#ifndef KB_H
-#define KB_H
+#pragma once
 
 #include "quantum.h"
 
@@ -24,5 +23,3 @@
 	{ R30, R31, R32, R33, R34, R35, R36, }, \
 	{ R40, R41, R42, R43, R44, R45, R46, }  \
 }
-
-#endif
